@@ -27,19 +27,19 @@ sudo dpkg -i libcudnn8-dev_8.1.1.33-1+cuda11.2_amd64.deb
 ```
 It also contains `libnvinfer7` and `libnvinfer_plugin7`, which should be installed. Create a folder for `libnvinfer7` and its dependencies:
 ```bash
-$mkdir /usr/local/tensorrt7
+mkdir /usr/local/tensorrt7
 ```
 and copy the libraries into it:
 ```bash
-$sudo cp /lib/x86_64-linux-gnu/libnvinfer.so.7.2.3 /usr/local/tensorrt7/
-$sudo cp /lib/x86_64-linux-gnu/libnvinfer_plugin.so.7.2.3 /usr/local/tensorrt7/
-$sudo cp /lib/x86_64-linux-gnu/libmyelin.so.1.1.116 /usr/local/tensorrt7/
+sudo cp /lib/x86_64-linux-gnu/libnvinfer.so.7.2.3 /usr/local/tensorrt7/
+sudo cp /lib/x86_64-linux-gnu/libnvinfer_plugin.so.7.2.3 /usr/local/tensorrt7/
+sudo cp /lib/x86_64-linux-gnu/libmyelin.so.1.1.116 /usr/local/tensorrt7/
 ```
 Create simlinks to these libraries:
 ```bash
-$sudo ln -s libnvinfer.so.7.2.3 libnvinfer.so.7
-$sudo ln -s libnvinfer_plugin.so.7.2.3 libnvinfer_plugin.so.7
-$sudo ln -s libmyelin.so.1.1.116 libmyelin.so.1
+sudo ln -s libnvinfer.so.7.2.3 libnvinfer.so.7
+sudo ln -s libnvinfer_plugin.so.7.2.3 libnvinfer_plugin.so.7
+sudo ln -s libmyelin.so.1.1.116 libmyelin.so.1
 ```
 Add the directory to the path (probably unnecessary):
 ```bash
@@ -62,11 +62,11 @@ $source tfenv/bin/activate
 ```
 Update `pip` and `setuptools`. Install `wheel`:
 ```bash
-(tfenv)$pip install --upgrade pip setuptools wheel
+(tfenv)$ pip install --upgrade pip setuptools wheel
 ```
 Install TensorFlow and other packages
 ```bash
-(tfenv)$pip install tensorflow
+(tfenv)$ pip install tensorflow
 ```
 Address some issues:
 ```bash
@@ -75,12 +75,12 @@ export TF_CPP_MIN_LOG_LEVEL=3  # Only print errors
 ```
 Verify the installation:
 ```bash
-(tfenv)$python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+(tfenv)$ python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
 ```
 A more detailed insight can be provided by running:
 ```bash
-(tfenv)$LD_DEBUG=libs python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))" > called_libs.txt 2>&1
+(tfenv)$ LD_DEBUG=libs python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))" > called_libs.txt 2>&1
 ```
 The output file, `called_libs.txt` contains a lot of stuff, but we can search for the evidence that the correct libraries have been called:
 ```bash
