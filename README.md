@@ -1,7 +1,6 @@
 # Tensorflow GPU installation on Ubuntu 22
 Install GPU enabled Tensorflow on Ubuntu 22
-$sudo 
-## Useful Ubuntu build packages
+## Ubuntu drivers and build packages
 ```bash
 sudo ubuntu-drivers install
 sudo apt install build-essential libffi-dev pkg-config cmake
@@ -42,9 +41,9 @@ $sudo ln -s libnvinfer.so.7.2.3 libnvinfer.so.7
 $sudo ln -s libnvinfer_plugin.so.7.2.3 libnvinfer_plugin.so.7
 $sudo ln -s libmyelin.so.1.1.116 libmyelin.so.1
 ```
-Add the directory to the path:
+Add the directory to the path (probably unnecessary):
 ```bash
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.2/lib64:/usr/local/cuda-11.2/extras/CUPTI/lib64:/usr/local/cuda-11.1/lib64:/usr/local/cuda-11.1/extras/CUPTI/lib64:/usr/local/tensorrc7
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.2/lib64:/usr/local/cuda-11.2/extras/CUPTI/lib64:/usr/local/cuda-11.1/lib64:/usr/local/cuda-11.1/extras/CUPTI/lib64:/usr/local/tensorrt7
 ```
 ## Python
 Download and install Python 3.10. The installation should be local:
@@ -77,4 +76,26 @@ export TF_CPP_MIN_LOG_LEVEL=3  # Only print errors
 Verify the installation:
 ```bash
 (tfenv)$python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
+[PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
+```
+A more detailed insight can be provided by running:
+```bash
+(tfenv)$LD_DEBUG=libs python -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))" > called_libs.txt 2>&1
+```
+The output file, `called_libs.txt` contains a lot of stuff, but we can search for the evidence that the correct libraries have been called:
+```bash
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libcudart.so.11.0
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libcublasLt.so.11
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libcublas.so.11
+ 3308:     calling init: /usr/local/cuda-11.1/lib64/libnvrtc.so.11.1
+ 3308:     calling init: /usr/local/tensorrt7/libmyelin.so.1
+ 3308:     calling init: /lib/x86_64-linux-gnu/libcudnn.so.8
+ 3308:     calling init: /usr/local/tensorrt7/libnvinfer.so.7
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libnvrtc.so
+ 3308:     calling init: /lib/x86_64-linux-gnu/libcuda.so
+ 3308:     calling init: /usr/local/tensorrt7/libnvinfer_plugin.so.7
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libcufft.so.10
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libcurand.so.10
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libcusolver.so.11
+ 3308:     calling init: /usr/local/cuda-11.2/lib64/libcusparse.so.11
 ```
