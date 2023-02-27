@@ -54,11 +54,11 @@ make install
 ```
 Create a Python environment:
 ```bash
-$/home/user/bin/python3 -m venv tfenv
+$ /home/user/bin/python3 -m venv tfenv
 ```
 and activate it:
 ```bash
-$source tfenv/bin/activate
+$ source tfenv/bin/activate
 ```
 Update `pip` and `setuptools`. Install `wheel`:
 ```bash
