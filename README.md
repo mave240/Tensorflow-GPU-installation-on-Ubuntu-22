@@ -99,3 +99,9 @@ The output file, `called_libs.txt` contains a lot of stuff, but we can search fo
  3308:     calling init: /usr/local/cuda-11.2/lib64/libcusolver.so.11
  3308:     calling init: /usr/local/cuda-11.2/lib64/libcusparse.so.11
 ```
+## Jax
+`Jax` requires CUDA version of at least 11.4. Download the latest CUDA 11 and install it. There could be three of them there:
+```bash
+
+```
+Add it to `PATH`.
