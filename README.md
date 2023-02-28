@@ -104,4 +104,22 @@ The output file, `called_libs.txt` contains a lot of stuff, but we can search fo
 ```bash
 
 ```
-Add it to `PATH`.
+Add it to `PATH`. Install `Jax` into the environment:
+```bash
+(tfenv)$ pip install --upgrade "jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+```
+Make sure GPU is used:
+```bash
+(tfenv)$ python -c "from jax.lib import xla_bridge; print(xla_bridge.get_backend().platform)"
+gpu
+```
+Check that the correct CUDA libraries are called:
+```bash
+LD_DEBUG=libs python -c "import jax; print(jax.numpy.sum(jax.random.normal(jax.random.PRNGKey(0),(1000, 1000))))" > jax_libs.txt 2>&1
+```
+```bash
+ 26142:     calling init: /usr/local/cuda-11.8/lib64/libcudart.so.11.0
+ 26142:     calling init: /usr/local/cuda-11.8/lib64/libcublasLt.so.11
+ 26142:     calling init: /usr/local/cuda-11.8/lib64/libnvrtc.so
+ 26142:     calling init: /usr/local/cuda-11.8/lib64/libcublas.so.11
+```
