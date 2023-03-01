@@ -1,5 +1,13 @@
 # Tensorflow GPU installation on Ubuntu 22
-Install GPU enabled Tensorflow on Ubuntu 22
+Install GPU enabled Tensorflow on Ubuntu 22. This document assumes that all the NVIDIA libraries are installed manually into the operating system (rather than using `Conda` for example) and that the versions are:
+```bash
+Ubuntu 22.04
+TensorFlow 2.10 or 2.11
+CUDA 11.8 and 11.1
+lbcudnn8  8.8
+TensorRT 7
+Python 3.10
+```
 ## Ubuntu drivers and build packages
 ```bash
 sudo ubuntu-drivers install
@@ -17,13 +25,43 @@ $ nvidia-smi
   NVIDIA-SMI 525.78.01    Driver Version: 525.78.01    CUDA Version: 12.0
 ```
 ### CUDA
-Download CUDA 11.8 (Mar 23) and install it. The package `.run` should install it in `/usr/local`, and there should be a config file in `/etc/ld.so.conf.d`. Modify the path:
+Download CUDA 11.8 and install it:
+```bash
+sudo ./cuda_11.8.0_520.61.05_linux.run --override
+```
+The package `.run` should install it everything in `/usr/local`, and there should be a config file in `/etc/ld.so.conf.d`. Modify the path in your (bash) shell rc file:
 ```bash
 export PATH=$PATH:/usr/local/cuda-11.8/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.8/lib64:/usr/local/cuda-11.8/extras/CUPTI/lib64
 ```
 ### CUDNN
-Donwload version 8.8 (Mar 23) and install it. Also include `dev` and `samples`. A `.deb` package can be installed using `dpkg -i`. Check:
+Donwload version 8.8 and install it:
+```bash
+sudo dpkg -i cudnn-local-repo-ubuntu2204-8.8.0.121_1.0-1_amd64.deb
+```
+This should create a folder in `/var`:
+```bash
+/var/cudnn-local-repo-ubuntu2204-8.8.0.121/
+├── B66125A0.pub
+├── cudnn-local-B66125A0-keyring.gpg
+├── InRelease
+├── libcudnn8_8.8.0.121-1+cuda11.8_amd64.deb
+├── libcudnn8-dev_8.8.0.121-1+cuda11.8_amd64.deb
+├── libcudnn8-samples_8.8.0.121-1+cuda11.8_amd64.deb
+├── Local.md5
+├── Local.md5.gpg
+├── Packages
+├── Packages.gz
+├── Release
+└── Release.gpg
+```
+At this point, instead of running `sudo apt install libcudnn8`, install the three `.deb` packages manually:
+```bash
+sudo dpkg -i /var/cudnn-local-repo-ubuntu2204-8.8.0.121/libcudnn8_8.8.0.121-1+cuda11.8_amd64.deb
+sudo dpkg -i /var/cudnn-local-repo-ubuntu2204-8.8.0.121/libcudnn8-dev_8.8.0.121-1+cuda11.8_amd64.deb
+sudo dpkg -i /var/cudnn-local-repo-ubuntu2204-8.8.0.121/libcudnn8-samples_8.8.0.121-1+cuda11.8_amd64.deb
+```
+. Check that the libraries have been installed:
 ```bash
 $ sudo dpkg -l | grep -i cudnn
 ii  cudnn-local-repo-ubuntu2204-8.8.0.121      1.0-1                                   amd64        cudnn-local repository configuration files
@@ -32,12 +70,20 @@ ii  libcudnn8-dev                              8.8.0.121-1+cuda11.8             
 ii  libcudnn8-samples                          8.8.0.121-1+cuda11.8                    amd64        cuDNN samples
 ```
 ### TensorRT
-The correct version as of Mar 23 is 7. Download [TensorRT7](https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/7.2.3/local_repos/nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb). Unpack the package with `dpkg`.
-It contains `libnvinfer7` and `libnvinfer_plugin7`, which should be installed. Create a folder for `libnvinfer7` and its dependencies:
+The version 7 requires CUDA 11.1, so install it first. Download [TensorRT7](https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/7.2.3/local_repos/nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb). Unpack the package into `\var` with `dpkg`:
+```bash
+sudo dpkg -i nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb
+```
+It contains `libnvinfer7` and `libnvinfer_plugin7`, which should be installed:
+```bash
+sudo dpkg -i libnvinfer7_7.2.3-1+cuda11.1_amd64.deb
+sudo dpkg -i libnvinfer-plugin7_7.2.3-1+cuda11.1_amd64.deb
+```
+Create a folder for `libnvinfer7` and its dependencies:
 ```bash
 mkdir /usr/local/tensorrt7
 ```
-and copy the libraries into it:
+and move the relevant libraries into it:
 ```bash
 sudo cp /lib/x86_64-linux-gnu/libnvinfer.so.7.2.3 /usr/local/tensorrt7/
 sudo cp /lib/x86_64-linux-gnu/libnvinfer_plugin.so.7.2.3 /usr/local/tensorrt7/
@@ -49,9 +95,10 @@ sudo ln -s libnvinfer.so.7.2.3 libnvinfer.so.7
 sudo ln -s libnvinfer_plugin.so.7.2.3 libnvinfer_plugin.so.7
 sudo ln -s libmyelin.so.1.1.116 libmyelin.so.1
 ```
-Add the directory to the path (probably unnecessary):
+Update the path:
 ```bash
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.2/lib64:/usr/local/cuda-11.2/extras/CUPTI/lib64:/usr/local/cuda-11.1/lib64:/usr/local/cuda-11.1/extras/CUPTI/lib64:/usr/local/tensorrt7
+export PATH=$PATH:/usr/local/cuda-11.1/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.1/lib64:/usr/local/cuda-11.1/extras/CUPTI/lib64:/usr/local/tensorrt7
 ```
 ## Python
 Download and install Python 3.10. The installation should be local:
@@ -70,7 +117,9 @@ $ source tfenv/bin/activate
 ```
 Update `pip` and `setuptools`. Install `wheel`:
 ```bash
-(tfenv)$ pip install --upgrade pip setuptools wheel
+(tfenv)$ pip install --upgrade pip
+(tfenv)$ pip install --upgrade setuptools
+(tfenv)$ pip install wheel
 ```
 Install TensorFlow and other packages
 ```bash
@@ -79,7 +128,7 @@ Install TensorFlow and other packages
 Address some issues:
 ```bash
 export TF_FORCE_GPU_ALLOW_GROWTH=true  # to avoid GPU memory issues
-export TF_CPP_MIN_LOG_LEVEL=3  # Only print errors
+export TF_CPP_MIN_LOG_LEVEL=3  # Only print errors. When debugging, this should set to 0
 ```
 Verify the installation:
 ```bash
@@ -92,27 +141,18 @@ A more detailed insight can be provided by running:
 ```
 The output file, `called_libs.txt` contains a lot of stuff, but we can search for the evidence that the correct libraries have been called:
 ```bash
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libcudart.so.11.0
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libcublasLt.so.11
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libcublas.so.11
- 3308:     calling init: /usr/local/cuda-11.1/lib64/libnvrtc.so.11.1
- 3308:     calling init: /usr/local/tensorrt7/libmyelin.so.1
- 3308:     calling init: /lib/x86_64-linux-gnu/libcudnn.so.8
- 3308:     calling init: /usr/local/tensorrt7/libnvinfer.so.7
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libnvrtc.so
- 3308:     calling init: /lib/x86_64-linux-gnu/libcuda.so
- 3308:     calling init: /usr/local/tensorrt7/libnvinfer_plugin.so.7
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libcufft.so.10
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libcurand.so.10
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libcusolver.so.11
- 3308:     calling init: /usr/local/cuda-11.2/lib64/libcusparse.so.11
+     18908:     calling init: /usr/local/cuda-11.8/lib64/libcublasLt.so.11
+     18908:     calling init: /lib/x86_64-linux-gnu/libcuda.so.1
+     18908:     calling init: /usr/local/cuda-11.8/lib64/libnvrtc.so
+     18908:     calling init: /usr/local/cuda-11.8/lib64/libcublas.so.11
+     18908:     calling init: /usr/local/cuda-11.1/lib64/libnvrtc.so.11.1
+     18908:     calling init: /usr/local/tensorrt7/libmyelin.so.1
+     18908:     calling init: /lib/x86_64-linux-gnu/libcudnn.so.8
+     18908:     calling init: /usr/local/tensorrt7/libnvinfer.so.7
+     18908:     calling init: /usr/local/tensorrt7/libnvinfer_plugin.so.7
 ```
 ## Jax
-`Jax` requires CUDA version of at least 11.4. Download the latest CUDA 11 and install it. There could be three of them there:
-```bash
-
-```
-Add it to `PATH`. Install `Jax` into the environment:
+`Jax` requires CUDA version of at least 11.4. Install `Jax` into the Python environment:
 ```bash
 (tfenv)$ pip install --upgrade "jax[cuda]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 ```
