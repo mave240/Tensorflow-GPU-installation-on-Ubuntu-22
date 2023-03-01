@@ -7,6 +7,7 @@ sudo apt install build-essential libffi-dev pkg-config cmake
 sudo apt install zlib1g-dev libssl-dev libsqlite3-dev
 ```
 ## NVIDIA related packages
+### Driver
 Make sure the driver installed is the Ubuntu tested and verified one.
 ![Screenshot from 2023-02-27 11-46-22](https://user-images.githubusercontent.com/37543656/221555859-99025c67-c3da-457e-bc91-d27ff899f313.png)
 It should support at least CUDA 11:
@@ -15,17 +16,24 @@ $ nvidia-smi
 +-----------------------------------------------------------------------------+
   NVIDIA-SMI 525.78.01    Driver Version: 525.78.01    CUDA Version: 12.0
 ```
-Download CUDA 11.1 and CUDA 11.2 and install them. They should be both in `/usr/local`. The former is needed for `libnvrtc.so.11.1` which seems to hardcoded somewhere in TensorFlow. The latter is needed for `libcudnn8` `11.2`. They should both be in the path:
+### CUDA
+Download CUDA 11.8 (Mar 23) and install it. The package `.run` should install it in `/usr/local`, and there should be a config file in `/etc/ld.so.conf.d`. Modify the path:
 ```bash
-export PATH=$PATH:/usr/local/cuda-11.2/bin:/usr/local/cuda-11.1/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.2/lib64:/usr/local/cuda-11.2/extras/CUPTI/lib64:/usr/local/cuda-11.1/lib64:/usr/local/cuda-11.1/extras/CUPTI/lib64
+export PATH=$PATH:/usr/local/cuda-11.8/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.8/lib64:/usr/local/cuda-11.8/extras/CUPTI/lib64
 ```
-Download [TensorRT7](https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/7.2.3/local_repos/nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb). It will contain `libcudnn8` and `libcudnn8-dev`, amongst others. These require CUDA 11.2. Unpack the package with `dpkg`. Install `libcudnn8`:
+### CUDNN
+Donwload version 8.8 (Mar 23) and install it. Also include `dev` and `samples`. A `.deb` package can be installed using `dpkg -i`. Check:
 ```bash
-sudo dpkg -i libcudnn8_8.1.1.33-1+cuda11.2_amd64.deb
-sudo dpkg -i libcudnn8-dev_8.1.1.33-1+cuda11.2_amd64.deb
+$ sudo dpkg -l | grep -i cudnn
+ii  cudnn-local-repo-ubuntu2204-8.8.0.121      1.0-1                                   amd64        cudnn-local repository configuration files
+ii  libcudnn8                                  8.8.0.121-1+cuda11.8                    amd64        cuDNN runtime libraries
+ii  libcudnn8-dev                              8.8.0.121-1+cuda11.8                    amd64        cuDNN development libraries and headers
+ii  libcudnn8-samples                          8.8.0.121-1+cuda11.8                    amd64        cuDNN samples
 ```
-It also contains `libnvinfer7` and `libnvinfer_plugin7`, which should be installed. Create a folder for `libnvinfer7` and its dependencies:
+### TensorRT
+The correct version as of Mar 23 is 7. Download [TensorRT7](https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/7.2.3/local_repos/nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb). Unpack the package with `dpkg`.
+It contains `libnvinfer7` and `libnvinfer_plugin7`, which should be installed. Create a folder for `libnvinfer7` and its dependencies:
 ```bash
 mkdir /usr/local/tensorrt7
 ```
