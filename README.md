@@ -29,7 +29,7 @@ Download CUDA 11.8 and install it:
 ```bash
 sudo ./cuda_11.8.0_520.61.05_linux.run --override
 ```
-The package `.run` should install it everything in `/usr/local`, and there should be a config file in `/etc/ld.so.conf.d`. Modify the path in your (bash) shell rc file:
+The package `.run` should install everything in `/usr/local`, and there should be a config file in `/etc/ld.so.conf.d`. Modify the path in your (bash) shell rc file:
 ```bash
 export PATH=$PATH:/usr/local/cuda-11.8/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.8/lib64:/usr/local/cuda-11.8/extras/CUPTI/lib64
@@ -70,7 +70,7 @@ ii  libcudnn8-dev                              8.8.0.121-1+cuda11.8             
 ii  libcudnn8-samples                          8.8.0.121-1+cuda11.8                    amd64        cuDNN samples
 ```
 ### TensorRT
-The version 7 requires CUDA 11.1, so install it first. Download [TensorRT7](https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/7.2.3/local_repos/nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb). Unpack the package into `\var` with `dpkg`:
+The version 7 requires CUDA 11.1, so install it first. It will live in peace with 11.8 in `/usr/local`. Download [TensorRT7](https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/7.2.3/local_repos/nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb). Unpack the package into `/var` with `dpkg`:
 ```bash
 sudo dpkg -i nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb
 ```
@@ -89,7 +89,7 @@ sudo cp /lib/x86_64-linux-gnu/libnvinfer.so.7.2.3 /usr/local/tensorrt7/
 sudo cp /lib/x86_64-linux-gnu/libnvinfer_plugin.so.7.2.3 /usr/local/tensorrt7/
 sudo cp /lib/x86_64-linux-gnu/libmyelin.so.1.1.116 /usr/local/tensorrt7/
 ```
-Create simlinks to these libraries:
+Create simlinks to these libraries (in `/usr/local/tensorrt7`):
 ```bash
 sudo ln -s libnvinfer.so.7.2.3 libnvinfer.so.7
 sudo ln -s libnvinfer_plugin.so.7.2.3 libnvinfer_plugin.so.7
@@ -141,15 +141,15 @@ A more detailed insight can be provided by running:
 ```
 The output file, `called_libs.txt` contains a lot of stuff, but we can search for the evidence that the correct libraries have been called:
 ```bash
-     18908:     calling init: /usr/local/cuda-11.8/lib64/libcublasLt.so.11
-     18908:     calling init: /lib/x86_64-linux-gnu/libcuda.so.1
-     18908:     calling init: /usr/local/cuda-11.8/lib64/libnvrtc.so
-     18908:     calling init: /usr/local/cuda-11.8/lib64/libcublas.so.11
-     18908:     calling init: /usr/local/cuda-11.1/lib64/libnvrtc.so.11.1
-     18908:     calling init: /usr/local/tensorrt7/libmyelin.so.1
-     18908:     calling init: /lib/x86_64-linux-gnu/libcudnn.so.8
-     18908:     calling init: /usr/local/tensorrt7/libnvinfer.so.7
-     18908:     calling init: /usr/local/tensorrt7/libnvinfer_plugin.so.7
+calling init: /usr/local/cuda-11.8/lib64/libcublasLt.so.11
+calling init: /lib/x86_64-linux-gnu/libcuda.so.1
+calling init: /usr/local/cuda-11.8/lib64/libnvrtc.so
+calling init: /usr/local/cuda-11.8/lib64/libcublas.so.11
+calling init: /usr/local/cuda-11.1/lib64/libnvrtc.so.11.1
+calling init: /usr/local/tensorrt7/libmyelin.so.1
+calling init: /lib/x86_64-linux-gnu/libcudnn.so.8
+calling init: /usr/local/tensorrt7/libnvinfer.so.7
+calling init: /usr/local/tensorrt7/libnvinfer_plugin.so.7
 ```
 ## Jax
 `Jax` requires CUDA version of at least 11.4. Install `Jax` into the Python environment:
@@ -166,8 +166,8 @@ Check that the correct CUDA libraries are called:
 LD_DEBUG=libs python -c "import jax; print(jax.numpy.sum(jax.random.normal(jax.random.PRNGKey(0),(1000, 1000))))" > jax_libs.txt 2>&1
 ```
 ```bash
- 26142:     calling init: /usr/local/cuda-11.8/lib64/libcudart.so.11.0
- 26142:     calling init: /usr/local/cuda-11.8/lib64/libcublasLt.so.11
- 26142:     calling init: /usr/local/cuda-11.8/lib64/libnvrtc.so
- 26142:     calling init: /usr/local/cuda-11.8/lib64/libcublas.so.11
+calling init: /usr/local/cuda-11.8/lib64/libcudart.so.11.0
+calling init: /usr/local/cuda-11.8/lib64/libcublasLt.so.11
+calling init: /usr/local/cuda-11.8/lib64/libnvrtc.so
+calling init: /usr/local/cuda-11.8/lib64/libcublas.so.11
 ```
