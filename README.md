@@ -1,10 +1,10 @@
-# Tensorflow GPU installation on Ubuntu 22
-Install GPU enabled Tensorflow on Ubuntu 22. This document assumes that all the NVIDIA libraries are installed manually into the operating system (rather than using `Conda` for example) and that the versions are:
+# TensorFlow GPU installation on Ubuntu 22
+Install GPU enabled Tensorflow on Ubuntu 22. This document assumes that all the NVIDIA libraries are installed manually into the operating system (rather than using `conda` for example) and that the versions are:
 ```bash
 Ubuntu 22.04
 TensorFlow 2.10 or 2.11
 CUDA 11.8 and 11.1
-lbcudnn8  8.8
+libcudnn8  8.8
 TensorRT 7
 Python 3.10
 ```
@@ -29,7 +29,7 @@ Download CUDA 11.8 and install it:
 ```bash
 sudo ./cuda_11.8.0_520.61.05_linux.run --override
 ```
-The package `.run` should install everything in `/usr/local`, and there should be a config file in `/etc/ld.so.conf.d`. Modify the path in your (bash) shell rc file:
+The package `.run` should install everything in `/usr/local`, and there should be a config file in `/etc/ld.so.conf.d`. Modify the path in your `.bashrc`:
 ```bash
 export PATH=$PATH:/usr/local/cuda-11.8/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.8/lib64:/usr/local/cuda-11.8/extras/CUPTI/lib64
@@ -61,13 +61,21 @@ sudo dpkg -i /var/cudnn-local-repo-ubuntu2204-8.8.0.121/libcudnn8_8.8.0.121-1+cu
 sudo dpkg -i /var/cudnn-local-repo-ubuntu2204-8.8.0.121/libcudnn8-dev_8.8.0.121-1+cuda11.8_amd64.deb
 sudo dpkg -i /var/cudnn-local-repo-ubuntu2204-8.8.0.121/libcudnn8-samples_8.8.0.121-1+cuda11.8_amd64.deb
 ```
-. Check that the libraries have been installed:
+Check that the libraries have been installed:
 ```bash
 $ sudo dpkg -l | grep -i cudnn
 ii  cudnn-local-repo-ubuntu2204-8.8.0.121      1.0-1                                   amd64        cudnn-local repository configuration files
 ii  libcudnn8                                  8.8.0.121-1+cuda11.8                    amd64        cuDNN runtime libraries
 ii  libcudnn8-dev                              8.8.0.121-1+cuda11.8                    amd64        cuDNN development libraries and headers
 ii  libcudnn8-samples                          8.8.0.121-1+cuda11.8                    amd64        cuDNN samples
+```
+or
+```bash
+$ apt list --installed | grep -i cudnn
+cudnn-local-repo-ubuntu2204-8.8.0.121/now 1.0-1 amd64 [installed,local]
+libcudnn8-dev/unknown,now 8.8.0.121-1+cuda11.8 amd64 [installed]
+libcudnn8-samples/unknown,now 8.8.0.121-1+cuda11.8 amd64 [installed]
+libcudnn8/unknown,now 8.8.0.121-1+cuda11.8 amd64 [installed]
 ```
 ### TensorRT
 The version 7 requires CUDA 11.1, so install it first. It will live in peace with 11.8 in `/usr/local`. Download [TensorRT7](https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/7.2.3/local_repos/nv-tensorrt-repo-ubuntu1804-cuda11.1-trt7.2.3.4-ga-20210226_1-1_amd64.deb). Unpack the package into `/var` with `dpkg`:
@@ -79,15 +87,21 @@ It contains `libnvinfer7` and `libnvinfer_plugin7`, which should be installed:
 sudo dpkg -i libnvinfer7_7.2.3-1+cuda11.1_amd64.deb
 sudo dpkg -i libnvinfer-plugin7_7.2.3-1+cuda11.1_amd64.deb
 ```
-Create a folder for `libnvinfer7` and its dependencies:
+Create a separate folder for `libnvinfer7` and its dependencies:
 ```bash
 mkdir /usr/local/tensorrt7
 ```
-and move the relevant libraries into it:
+remove the simlinks:
 ```bash
-sudo cp /lib/x86_64-linux-gnu/libnvinfer.so.7.2.3 /usr/local/tensorrt7/
-sudo cp /lib/x86_64-linux-gnu/libnvinfer_plugin.so.7.2.3 /usr/local/tensorrt7/
-sudo cp /lib/x86_64-linux-gnu/libmyelin.so.1.1.116 /usr/local/tensorrt7/
+sudo rm /lib/x86_64-linux-gnu/libnvinfer.so.7
+sudo rm /lib/x86_64-linux-gnu/libnvinfer_plugin.so.7
+sudo rm /lib/x86_64-linux-gnu/libmyelin.so.1
+```
+and move the relevant libraries into the new destination:
+```bash
+sudo mv /lib/x86_64-linux-gnu/libnvinfer.so.7.2.3 /usr/local/tensorrt7/
+sudo mv /lib/x86_64-linux-gnu/libnvinfer_plugin.so.7.2.3 /usr/local/tensorrt7/
+sudo mv /lib/x86_64-linux-gnu/libmyelin.so.1.1.116 /usr/local/tensorrt7/
 ```
 Create simlinks to these libraries (in `/usr/local/tensorrt7`):
 ```bash
