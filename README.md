@@ -185,3 +185,10 @@ calling init: /usr/local/cuda-11.8/lib64/libcublasLt.so.11
 calling init: /usr/local/cuda-11.8/lib64/libnvrtc.so
 calling init: /usr/local/cuda-11.8/lib64/libcublas.so.11
 ```
+## GPU not detected after resuming from suspension
+It looks like NVIDIA _Unified Virtual Memory_ must be reloaded after waking up
+```bash
+sudo rmmod nvidia_uvm
+sudo modprobe nvidia_uvm
+```
+TODO check that this really is true.
