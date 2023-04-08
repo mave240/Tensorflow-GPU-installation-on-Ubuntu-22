@@ -114,6 +114,11 @@ Update the path:
 export PATH=$PATH:/usr/local/cuda-11.1/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.1/lib64:/usr/local/cuda-11.1/extras/CUPTI/lib64:/usr/local/tensorrt7
 ```
+Now run
+```bash
+sudo apt --fix-broken install
+```
+to remove the libraries from `/lib/x86_64-linux-gnu`.
 ## Python
 Download and install Python 3.10. The installation should be local:
 ```bash
