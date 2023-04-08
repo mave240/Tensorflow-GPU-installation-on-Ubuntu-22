@@ -87,7 +87,7 @@ It contains `libnvinfer7` and `libnvinfer_plugin7`, which should be installed:
 sudo dpkg -i libnvinfer7_7.2.3-1+cuda11.1_amd64.deb
 sudo dpkg -i libnvinfer-plugin7_7.2.3-1+cuda11.1_amd64.deb
 ```
-Create a separate folder for `libnvinfer7` and its dependencies:
+This might produce some `CUDA-11.1` related error messages, but the libraries have been extracted. Create a separate folder for `libnvinfer7` and its dependencies:
 ```bash
 mkdir /usr/local/tensorrt7
 ```
@@ -117,7 +117,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda-11.1/lib64:/usr/local/cu
 ## Python
 Download and install Python 3.10. The installation should be local:
 ```bash
-./configure --prefix=/home/user/ --enable-optimizations
+./configure --prefix=/home/<user>/ --enable-optimizations
 make
 make install
 ```
