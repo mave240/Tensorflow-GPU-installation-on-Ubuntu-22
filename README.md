@@ -123,7 +123,7 @@ make install
 ```
 Create a Python environment:
 ```bash
-$ /home/user/bin/python3 -m venv tfenv
+$ /home/<user>/bin/python3 -m venv tfenv
 ```
 and activate it:
 ```bash
