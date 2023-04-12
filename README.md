@@ -12,7 +12,7 @@ Python 3.10
 ```bash
 sudo ubuntu-drivers install
 sudo apt install build-essential libffi-dev pkg-config cmake
-sudo apt install zlib1g-dev libssl-dev libsqlite3-dev
+sudo apt install zlib1g-dev libssl-dev libsqlite3-dev libbz2-dev
 ```
 ## NVIDIA related packages
 ### Driver
