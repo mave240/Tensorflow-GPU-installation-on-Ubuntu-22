@@ -55,6 +55,10 @@ This should create a folder in `/var`:
 ├── Release
 └── Release.gpg
 ```
+Add the pub key or `apt` will complain every time you run it:
+```bash
+sudo cp /var/cudnn-local-repo-ubuntu2204-8.8.0.121/cudnn-local-B66125A0-keyring.gpg /usr/share/keyrings/
+```
 At this point, instead of running `sudo apt install libcudnn8`, install the three `.deb` packages manually:
 ```bash
 sudo dpkg -i /var/cudnn-local-repo-ubuntu2204-8.8.0.121/libcudnn8_8.8.0.121-1+cuda11.8_amd64.deb
